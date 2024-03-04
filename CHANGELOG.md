@@ -1,4 +1,4 @@
-## [1.1.0] - 1 Mar 2024
+## [2.0.0] - 1 Mar 2024
 - Fixing some bugs
 - Update README file
 
