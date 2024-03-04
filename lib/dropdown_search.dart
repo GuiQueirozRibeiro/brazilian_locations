@@ -1,21 +1,57 @@
 import 'package:flutter/material.dart';
 
+/// A dropdown widget with search functionality.
+///
+/// This widget displays a dropdown with a search option. It allows users
+/// to select an item from a list with the ability to filter items by typing
+/// in a search box.
 class DropdownWithSearch<T> extends StatelessWidget {
+  /// The title displayed above the dropdown.
   final String title;
+
+  /// The placeholder text for the search input.
   final String placeHolder;
+
+  /// The currently selected item.
   final T selected;
+
+  /// The list of items to select from.
   final List items;
+
+  /// Padding for the selected item.
   final EdgeInsets? selectedItemPadding;
+
+  /// Style for the selected item.
   final TextStyle? selectedItemStyle;
+
+  /// Style for the dropdown heading.
   final TextStyle? dropdownHeadingStyle;
+
+  /// Style for the items in the dropdown.
   final TextStyle? itemStyle;
-  final BoxDecoration? decoration, disabledDecoration;
+
+  /// Decoration for the dropdown.
+  final BoxDecoration? decoration;
+
+  /// Decoration for the dropdown when disabled.
+  final BoxDecoration? disabledDecoration;
+
+  /// Radius for the search bar.
   final double? searchBarRadius;
+
+  /// Radius for the dialog.
   final double? dialogRadius;
+
+  /// Whether the dropdown is disabled.
   final bool disabled;
+
+  /// A label for the dropdown.
   final String label;
+
+  /// Callback function called when the selection changes.
   final Function onChanged;
 
+  /// Creates a [DropdownWithSearch] widget.
   const DropdownWithSearch({
     super.key,
     required this.title,
@@ -59,13 +95,13 @@ class DropdownWithSearch<T> extends StatelessWidget {
           decoration: !disabled
               ? decoration ??
                   BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    borderRadius: const BorderRadius.all(Radius.circular(4)),
                     color: Colors.white,
                     border: Border.all(color: Colors.grey.shade300, width: 1),
                   )
               : disabledDecoration ??
                   BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    borderRadius: const BorderRadius.all(Radius.circular(4)),
                     color: Colors.grey.shade300,
                     border: Border.all(color: Colors.grey.shade300, width: 1),
                   ),
@@ -75,7 +111,7 @@ class DropdownWithSearch<T> extends StatelessWidget {
                 child: Text(
                   selected.toString(),
                   overflow: TextOverflow.ellipsis,
-                  style: selectedItemStyle ?? const TextStyle(fontSize: 14),
+                  style: selectedItemStyle ?? const TextStyle(fontSize: 16),
                 ),
               ),
               const Icon(Icons.keyboard_arrow_down_rounded)
@@ -87,15 +123,30 @@ class DropdownWithSearch<T> extends StatelessWidget {
   }
 }
 
+/// A dialog widget with search functionality.
 class SearchDialog extends StatefulWidget {
+  /// The title of the dialog.
   final String title;
+
+  /// The placeholder text for the search input.
   final String placeHolder;
+
+  /// The list of items to search from.
   final List items;
+
+  /// Style for the title of the dialog.
   final TextStyle? titleStyle;
+
+  /// Style for the items in the dialog.
   final TextStyle? itemStyle;
+
+  /// Radius for the search input.
   final double? searchInputRadius;
+
+  /// Radius for the dialog.
   final double? dialogRadius;
 
+  /// Creates a [SearchDialog] widget.
   const SearchDialog({
     super.key,
     required this.title,
@@ -117,6 +168,8 @@ class _SearchDialogState<T> extends State<SearchDialog> {
 
   @override
   void initState() {
+    super.initState();
+
     filteredList = widget.items;
     textController.addListener(() {
       setState(() {
@@ -132,7 +185,6 @@ class _SearchDialogState<T> extends State<SearchDialog> {
         }
       });
     });
-    super.initState();
   }
 
   @override
@@ -187,22 +239,22 @@ class _SearchDialogState<T> extends State<SearchDialog> {
                   hintText: widget.placeHolder,
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.all(
-                      widget.searchInputRadius != null
-                          ? Radius.circular(widget.searchInputRadius!)
-                          : const Radius.circular(5),
+                        widget.searchInputRadius != null
+                            ? Radius.circular(widget.searchInputRadius!)
+                            : const Radius.circular(8)),
+                    borderSide: const BorderSide(
+                      color: Colors.black26,
                     ),
-                    borderSide: const BorderSide(color: Colors.black26),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.all(
-                      widget.searchInputRadius != null
-                          ? Radius.circular(widget.searchInputRadius!)
-                          : const Radius.circular(5),
-                    ),
+                        widget.searchInputRadius != null
+                            ? Radius.circular(widget.searchInputRadius!)
+                            : const Radius.circular(8)),
                     borderSide: const BorderSide(color: Colors.black12),
                   ),
                 ),
-                style: widget.itemStyle ?? const TextStyle(fontSize: 14),
+                style: widget.itemStyle ?? const TextStyle(fontSize: 16),
                 controller: textController,
               ),
             ),
@@ -211,7 +263,7 @@ class _SearchDialogState<T> extends State<SearchDialog> {
               child: ClipRRect(
                 borderRadius: BorderRadius.all(widget.dialogRadius != null
                     ? Radius.circular(widget.dialogRadius!)
-                    : const Radius.circular(5)),
+                    : const Radius.circular(8)),
                 child: ListView.builder(
                   itemCount: filteredList.length,
                   itemBuilder: (context, index) {
@@ -221,11 +273,14 @@ class _SearchDialogState<T> extends State<SearchDialog> {
                         Navigator.pop(context, filteredList[index]);
                       },
                       child: Padding(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 18,
+                        ),
                         child: Text(
                           filteredList[index].toString(),
                           style:
-                              widget.itemStyle ?? const TextStyle(fontSize: 14),
+                              widget.itemStyle ?? const TextStyle(fontSize: 16),
                         ),
                       ),
                     );
@@ -240,22 +295,38 @@ class _SearchDialogState<T> extends State<SearchDialog> {
   }
 }
 
+/// A customizable dialog widget.
 class CustomDialog extends StatelessWidget {
+  /// Creates a dialog.
+  ///
+  /// Typically used in conjunction with [showDialog].
+
+  /// The widget below this widget in the tree.
+  final Widget? child;
+
+  /// The duration of the animation to show when the system keyboard intrudes
+  /// into the space that the dialog is placed in.
+  final Duration insetAnimationDuration;
+
+  /// The curve to use for the animation shown when the system keyboard intrudes
+  /// into the space that the dialog is placed in.
+  final Curve insetAnimationCurve;
+
+  /// The shape of this dialog's border.
+  ///
+  /// Defines the dialog's [Material.shape].
+  ///
+  /// The default shape is a [RoundedRectangleBorder] with a radius of 2.0.
+  final ShapeBorder? shape;
+
+  /// Creates a [CustomDialog] widget.
   const CustomDialog({
     super.key,
     this.child,
     this.insetAnimationDuration = const Duration(milliseconds: 100),
     this.insetAnimationCurve = Curves.decelerate,
     this.shape,
-    this.constraints = const BoxConstraints(
-        minWidth: 280.0, minHeight: 280.0, maxHeight: 400.0, maxWidth: 400.0),
   });
-
-  final Widget? child;
-  final Duration insetAnimationDuration;
-  final Curve insetAnimationCurve;
-  final ShapeBorder? shape;
-  final BoxConstraints constraints;
 
   Color _getColor(BuildContext context) {
     return Theme.of(context).dialogBackgroundColor;
@@ -263,12 +334,19 @@ class CustomDialog extends StatelessWidget {
 
   static const RoundedRectangleBorder _defaultDialogShape =
       RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(2.0)),
+          borderRadius: BorderRadius.all(Radius.circular(4.0)));
+
+  static const constraints = BoxConstraints(
+    minWidth: 280.0,
+    minHeight: 280.0,
+    maxHeight: 400.0,
+    maxWidth: 400.0,
   );
 
   @override
   Widget build(BuildContext context) {
     final DialogTheme dialogTheme = DialogTheme.of(context);
+
     return AnimatedPadding(
       padding: MediaQuery.of(context).viewInsets +
           const EdgeInsets.symmetric(horizontal: 22.0, vertical: 24.0),

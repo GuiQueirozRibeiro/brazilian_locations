@@ -5,7 +5,69 @@ import 'package:flutter/services.dart';
 
 import 'dropdown_search.dart';
 
+/// A widget for selecting Brazilian locations.
 class BrazilianLocations extends StatefulWidget {
+  /// Callback for state selection change.
+  final ValueChanged<String?>? onStateChanged;
+
+  /// Callback for city selection change.
+  final ValueChanged<String?>? onCityChanged;
+
+  /// The currently selected state.
+  final String? currentState;
+
+  /// The currently selected city.
+  final String? currentCity;
+
+  /// Whether to show the clear button.
+  final bool showClearButton;
+
+  /// Content to display on the clear button.
+  final Widget clearButtonContent;
+
+  /// Widget to display as title.
+  final Widget? title;
+
+  /// Style for the selected item.
+  final TextStyle? selectedItemStyle;
+
+  /// Style for the dropdown heading.
+  final TextStyle? dropdownHeadingStyle;
+
+  /// Style for the dropdown items.
+  final TextStyle? dropdownItemStyle;
+
+  /// Decoration for the dropdown.
+  final BoxDecoration? dropdownDecoration;
+
+  /// Decoration for the disabled dropdown.
+  final BoxDecoration? disabledDropdownDecoration;
+
+  /// Whether to show states dropdown.
+  final bool showStates;
+
+  /// Whether to show cities dropdown.
+  final bool showCities;
+
+  /// Radius for the search bar.
+  final double? searchBarRadius;
+
+  /// Radius for the dropdown dialog.
+  final double? dropdownDialogRadius;
+
+  /// Placeholder text for state search.
+  final String stateSearchPlaceholder;
+
+  /// Placeholder text for city search.
+  final String citySearchPlaceholder;
+
+  /// Label for the state dropdown.
+  final String stateDropdownLabel;
+
+  /// Label for the city dropdown.
+  final String cityDropdownLabel;
+
+  /// Creates a [BrazilianLocations] widget.
   const BrazilianLocations({
     super.key,
     this.onStateChanged,
@@ -29,55 +91,30 @@ class BrazilianLocations extends StatefulWidget {
     this.clearButtonContent = const Text("Clear"),
     this.showClearButton = false,
   });
-  final ValueChanged<String?>? onStateChanged;
-  final ValueChanged<String?>? onCityChanged;
-
-  final String? currentState;
-  final String? currentCity;
-
-  // clear button parameters
-  final bool showClearButton;
-  final Widget clearButtonContent;
-
-  // title widget
-  final Widget? title;
-
-  ///Parameters to change style of CSC Picker
-  final TextStyle? selectedItemStyle, dropdownHeadingStyle, dropdownItemStyle;
-  final BoxDecoration? dropdownDecoration, disabledDropdownDecoration;
-  final bool showStates, showCities;
-  final double? searchBarRadius;
-  final double? dropdownDialogRadius;
-
-  final String stateSearchPlaceholder;
-  final String citySearchPlaceholder;
-  final String stateDropdownLabel;
-  final String cityDropdownLabel;
 
   @override
   State<BrazilianLocations> createState() => _BrazilianLocationsState();
 }
 
 class _BrazilianLocationsState extends State<BrazilianLocations> {
-  late List<String> _states;
-  late List<String> _cities;
   String _selectedState = 'State';
   String _selectedCity = 'City';
+  List<String> _states = [];
+  List<String> _cities = [];
 
   @override
   void initState() {
     super.initState();
-    _states = [];
-    _cities = [];
-    _selectedState = widget.currentState ?? 'State';
-    _selectedCity = widget.currentCity ?? 'City';
     _loadStates();
   }
 
-  Future<dynamic> loadJson() async {
-    return await rootBundle.loadString('assets/brazilian_locations.json');
+  /// Read JSON Brazil data from assets
+  Future<String> loadJson() async {
+    return await rootBundle
+        .loadString('packages/brazilian_locations/lib/assets/brasil.json');
   }
 
+  /// Read States from json response
   Future<void> _loadStates() async {
     final String jsonContent = await loadJson();
     final List<dynamic> states = jsonDecode(jsonContent)['states'];
@@ -86,6 +123,7 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
     });
   }
 
+  /// Read Cities from json response
   Future<void> _loadCities(String stateName) async {
     final String jsonContent = await loadJson();
     final List<dynamic> states = jsonDecode(jsonContent)['states'];
@@ -116,27 +154,25 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
         if (widget.title != null || widget.showClearButton)
           const SizedBox(height: 10.0),
         Column(
-          children: [
-            if (widget.showStates) const SizedBox(height: 10.0),
-            if (widget.showStates) Expanded(child: _buildStateDropdown()),
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            if (widget.showStates) _buildStateDropdown(),
             const SizedBox(height: 10.0),
             if (widget.showStates && widget.showCities) _buildCityDropdown(),
           ],
-        ),
+        )
       ],
     );
   }
 
+  /// Build Dropdown Widget for State
   Widget _buildStateDropdown() {
     return DropdownWithSearch(
       title: widget.stateDropdownLabel,
       placeHolder: widget.stateSearchPlaceholder,
       disabled: _states.isEmpty ? true : false,
-      items: _states.map<DropdownMenuItem<String>>((String state) {
-        return DropdownMenuItem<String>(
-          value: state,
-          child: Text(state),
-        );
+      items: _states.map((String? dropDownStringItem) {
+        return dropDownStringItem;
       }).toList(),
       selectedItemStyle: widget.selectedItemStyle,
       dropdownHeadingStyle: widget.dropdownHeadingStyle,
@@ -157,16 +193,14 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
     );
   }
 
+  /// Build Dropdown Widget for City
   Widget _buildCityDropdown() {
     return DropdownWithSearch(
       title: widget.cityDropdownLabel,
       placeHolder: widget.citySearchPlaceholder,
       disabled: _cities.isEmpty ? true : false,
-      items: _cities.map<DropdownMenuItem<String>>((String city) {
-        return DropdownMenuItem<String>(
-          value: city,
-          child: Text(city),
-        );
+      items: _cities.map((String? dropDownStringItem) {
+        return dropDownStringItem;
       }).toList(),
       selectedItemStyle: widget.selectedItemStyle,
       dropdownHeadingStyle: widget.dropdownHeadingStyle,
@@ -186,6 +220,7 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
     );
   }
 
+  /// Clear State and City Values
   Widget _buildClearButton() {
     return ElevatedButton(
       onPressed: () {
