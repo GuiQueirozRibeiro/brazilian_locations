@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 import 'dropdown_search.dart';
 
@@ -24,6 +25,9 @@ class BrazilianLocations extends StatefulWidget {
 
   /// Content to display on the clear button.
   final Widget clearButtonContent;
+
+  /// Decoration for the clear button.
+  final ButtonStyle? clearButtonDecoration;
 
   /// Widget to display as title.
   final Widget? title;
@@ -48,6 +52,9 @@ class BrazilianLocations extends StatefulWidget {
 
   /// Whether to show cities dropdown.
   final bool showCities;
+
+  /// Use local data or use json from IBGE Api.
+  final bool useLocalData;
 
   /// Radius for the search bar.
   final double? searchBarRadius;
@@ -81,14 +88,16 @@ class BrazilianLocations extends StatefulWidget {
     this.dropdownDialogRadius,
     this.showStates = true,
     this.showCities = true,
+    this.useLocalData = true,
     this.currentState,
     this.currentCity,
-    this.stateSearchPlaceholder = "Search State",
-    this.citySearchPlaceholder = "Search City",
-    this.stateDropdownLabel = "State",
-    this.cityDropdownLabel = "City",
+    this.stateSearchPlaceholder = 'Search State',
+    this.citySearchPlaceholder = 'Search City',
+    this.stateDropdownLabel = 'State',
+    this.cityDropdownLabel = 'City',
     this.title,
-    this.clearButtonContent = const Text("Clear"),
+    this.clearButtonContent = const Text('Clear'),
+    this.clearButtonDecoration,
     this.showClearButton = false,
   });
 
@@ -97,44 +106,56 @@ class BrazilianLocations extends StatefulWidget {
 }
 
 class _BrazilianLocationsState extends State<BrazilianLocations> {
-  String _selectedState = 'State';
-  String _selectedCity = 'City';
+  String _selectedState = '';
+  String _selectedCity = '';
   List<String> _states = [];
-  List<String> _cities = [];
+  Map<String, Set<String>> _citiesMap = {};
 
   @override
   void initState() {
     super.initState();
-    _loadStates();
+    _initValues();
+    _loadStatesAndCities();
   }
 
-  /// Read JSON Brazil data from assets
+  void _initValues() {
+    _selectedState = widget.currentState ?? widget.stateDropdownLabel;
+    _selectedCity = widget.currentCity ?? widget.cityDropdownLabel;
+  }
+
+  /// Read JSON Brazil data from assets or IBGE Api
   Future<String> loadJson() async {
-    return await rootBundle
-        .loadString('packages/brazilian_locations/lib/assets/brasil.json');
+    if (widget.useLocalData) {
+      return await rootBundle
+          .loadString('packages/brazilian_locations/lib/assets/brasil.json');
+    } else {
+      final response = await http.get(
+        Uri.https('servicodados.ibge.gov.br', '/api/v1/localidades/distritos'),
+      );
+      return response.body;
+    }
   }
 
-  /// Read States from json response
-  Future<void> _loadStates() async {
+  Future<void> _loadStatesAndCities() async {
     final String jsonContent = await loadJson();
-    final List<dynamic> states = jsonDecode(jsonContent)['states'];
-    setState(() {
-      _states = states.map((state) => state['name']).cast<String>().toList();
-    });
-  }
+    final List<dynamic> data = jsonDecode(jsonContent);
+    Map<String, Set<String>> statesAndCities = {};
 
-  /// Read Cities from json response
-  Future<void> _loadCities(String stateName) async {
-    final String jsonContent = await loadJson();
-    final List<dynamic> states = jsonDecode(jsonContent)['states'];
-    final List<String> cities = states
-        .firstWhere((state) => state['name'] == stateName)['cities']
-        .map((city) => city['name'])
-        .cast<String>()
-        .toList();
+    for (final item in data) {
+      String state =
+          item['municipio']['microrregiao']['mesorregiao']['UF']['nome'];
+      String city = item['municipio']['nome'];
+
+      if (statesAndCities.containsKey(state)) {
+        statesAndCities[state]!.add(city);
+      } else {
+        statesAndCities[state] = {city};
+      }
+    }
+
     setState(() {
-      _cities = cities;
-      _selectedCity = 'City';
+      _states = statesAndCities.keys.toList();
+      _citiesMap = statesAndCities;
     });
   }
 
@@ -168,8 +189,8 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
   /// Build Dropdown Widget for State
   Widget _buildStateDropdown() {
     return DropdownWithSearch(
+      label: widget.stateSearchPlaceholder,
       title: widget.stateDropdownLabel,
-      placeHolder: widget.stateSearchPlaceholder,
       disabled: _states.isEmpty ? true : false,
       items: _states.map((String? dropDownStringItem) {
         return dropDownStringItem;
@@ -182,11 +203,9 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
       searchBarRadius: widget.searchBarRadius,
       disabledDecoration: widget.disabledDropdownDecoration,
       selected: _selectedState,
-      label: widget.stateSearchPlaceholder,
       onChanged: (String? newState) {
         if (newState != null && widget.onStateChanged != null) {
           widget.onStateChanged!(newState);
-          _loadCities(newState);
           setState(() => _selectedState = newState);
         }
       },
@@ -195,13 +214,14 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
 
   /// Build Dropdown Widget for City
   Widget _buildCityDropdown() {
+    List<String>? cities = _citiesMap[_selectedState]?.toList();
+    cities ??= [];
+
     return DropdownWithSearch(
       title: widget.cityDropdownLabel,
-      placeHolder: widget.citySearchPlaceholder,
-      disabled: _cities.isEmpty ? true : false,
-      items: _cities.map((String? dropDownStringItem) {
-        return dropDownStringItem;
-      }).toList(),
+      label: widget.citySearchPlaceholder,
+      disabled: cities.isEmpty ? true : false,
+      items: cities,
       selectedItemStyle: widget.selectedItemStyle,
       dropdownHeadingStyle: widget.dropdownHeadingStyle,
       itemStyle: widget.dropdownItemStyle,
@@ -210,7 +230,6 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
       searchBarRadius: widget.searchBarRadius,
       disabledDecoration: widget.disabledDropdownDecoration,
       selected: _selectedCity,
-      label: widget.citySearchPlaceholder,
       onChanged: (String? newCity) {
         if (newCity != null && widget.onCityChanged != null) {
           widget.onCityChanged!(newCity);
@@ -223,12 +242,13 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
   /// Clear State and City Values
   Widget _buildClearButton() {
     return ElevatedButton(
+      style: widget.clearButtonDecoration,
       onPressed: () {
         if (widget.onStateChanged != null) widget.onStateChanged!(null);
         if (widget.onCityChanged != null) widget.onCityChanged!(null);
         setState(() {
-          _selectedState = 'State';
-          _selectedCity = 'City';
+          _selectedState = widget.stateDropdownLabel;
+          _selectedCity = widget.cityDropdownLabel;
         });
       },
       child: widget.clearButtonContent,

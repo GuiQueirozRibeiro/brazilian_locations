@@ -9,9 +9,6 @@ class DropdownWithSearch<T> extends StatelessWidget {
   /// The title displayed above the dropdown.
   final String title;
 
-  /// The placeholder text for the search input.
-  final String placeHolder;
-
   /// The currently selected item.
   final T selected;
 
@@ -55,7 +52,6 @@ class DropdownWithSearch<T> extends StatelessWidget {
   const DropdownWithSearch({
     super.key,
     required this.title,
-    required this.placeHolder,
     required this.items,
     required this.selected,
     required this.onChanged,
@@ -80,8 +76,8 @@ class DropdownWithSearch<T> extends StatelessWidget {
           showDialog(
             context: context,
             builder: (context) => SearchDialog(
-              placeHolder: placeHolder,
               title: title,
+              label: label,
               searchInputRadius: searchBarRadius,
               dialogRadius: dialogRadius,
               titleStyle: dropdownHeadingStyle,
@@ -129,7 +125,7 @@ class SearchDialog extends StatefulWidget {
   final String title;
 
   /// The placeholder text for the search input.
-  final String placeHolder;
+  final String label;
 
   /// The list of items to search from.
   final List items;
@@ -150,7 +146,7 @@ class SearchDialog extends StatefulWidget {
   const SearchDialog({
     super.key,
     required this.title,
-    required this.placeHolder,
+    required this.label,
     required this.items,
     this.titleStyle,
     this.searchInputRadius,
@@ -236,7 +232,7 @@ class _SearchDialogState<T> extends State<SearchDialog> {
                 decoration: InputDecoration(
                   isDense: true,
                   prefixIcon: const Icon(Icons.search),
-                  hintText: widget.placeHolder,
+                  hintText: widget.label,
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.all(
                         widget.searchInputRadius != null

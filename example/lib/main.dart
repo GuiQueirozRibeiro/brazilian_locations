@@ -63,11 +63,11 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
 
               /// Placeholders for dropdown search field
-              stateSearchPlaceholder: "State",
+              stateSearchPlaceholder: "Estado",
               citySearchPlaceholder: "City",
 
               /// Labels for dropdown
-              stateDropdownLabel: "State",
+              stateDropdownLabel: "Estado",
               cityDropdownLabel: "City",
 
               /// Selected item style [OPTIONAL PARAMETER]
