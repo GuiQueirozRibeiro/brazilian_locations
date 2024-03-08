@@ -1,0 +1,4 @@
+.dart_tool/
+android/brazilian_locations_android.iml
+brazilian_locations.iml
+pubspec.lock

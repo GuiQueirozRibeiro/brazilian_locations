@@ -1,3 +1,6 @@
+## [3.1.1] - 8 Mar 2024
+- Fixed warnings to publish.
+
 ## [3.1.0] - 8 Mar 2024
 - Option to customize style for text field.
 - Option to use label above the dropdown component.
