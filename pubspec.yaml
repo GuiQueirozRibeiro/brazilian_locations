@@ -10,8 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.2.1
-  plugin_platform_interface: ^2.0.2
+  http: ^0.13.3s
 
 dev_dependencies:
   flutter_test:
