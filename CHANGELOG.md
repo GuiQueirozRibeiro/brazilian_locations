@@ -1,3 +1,6 @@
+## [3.1.2] - 8 Mar 2024
+- Update http dependency.
+
 ## [3.1.1] - 8 Mar 2024
 - Fixed warnings to publish.
 
