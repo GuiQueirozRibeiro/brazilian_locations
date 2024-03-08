@@ -8,7 +8,7 @@
 .buildlog/
 .history
 .svn/
-migrate_working_dir/
+.fvm/
 
 # IntelliJ related
 *.iml
@@ -22,22 +22,14 @@ migrate_working_dir/
 #.vscode/
 
 # Flutter/Dart/Pub related
+# Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
+/pubspec.lock
 **/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+.packages
+.dart_tool/package_config.json
+.dart_tool/package_config_subset
+.dart_tool/version
+android/brazilian_locations_android.iml
+brazilian_locations.iml
+pubspec.lock
+build/

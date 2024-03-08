@@ -1,0 +1,1 @@
+ /home/guilherme/projects/brazilian_locations/example/.dart_tool/flutter_build/3b81edbd9bec94e3fe7df274f433f51f/native_assets.yaml: 
