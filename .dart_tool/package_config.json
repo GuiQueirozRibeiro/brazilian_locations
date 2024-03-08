@@ -57,9 +57,9 @@
     },
     {
       "name": "http",
-      "rootUri": "file:///home/guilherme/.pub-cache/hosted/pub.dev/http-1.2.1",
+      "rootUri": "file:///home/guilherme/.pub-cache/hosted/pub.dev/http-0.13.6",
       "packageUri": "lib/",
-      "languageVersion": "3.3"
+      "languageVersion": "2.19"
     },
     {
       "name": "http_parser",
@@ -112,12 +112,6 @@
     {
       "name": "path",
       "rootUri": "file:///home/guilherme/.pub-cache/hosted/pub.dev/path-1.9.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
-      "name": "plugin_platform_interface",
-      "rootUri": "file:///home/guilherme/.pub-cache/hosted/pub.dev/plugin_platform_interface-2.1.8",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -182,19 +176,13 @@
       "languageVersion": "3.0"
     },
     {
-      "name": "web",
-      "rootUri": "file:///home/guilherme/.pub-cache/hosted/pub.dev/web-0.5.1",
-      "packageUri": "lib/",
-      "languageVersion": "3.3"
-    },
-    {
       "name": "brazilian_locations",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-03-07T21:51:06.926598Z",
+  "generated": "2024-03-08T19:01:14.749941Z",
   "generator": "pub",
   "generatorVersion": "3.3.0"
 }

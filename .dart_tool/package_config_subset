@@ -27,9 +27,9 @@ flutter_lints
 file:///home/guilherme/.pub-cache/hosted/pub.dev/flutter_lints-3.0.1/
 file:///home/guilherme/.pub-cache/hosted/pub.dev/flutter_lints-3.0.1/lib/
 http
-3.3
-file:///home/guilherme/.pub-cache/hosted/pub.dev/http-1.2.1/
-file:///home/guilherme/.pub-cache/hosted/pub.dev/http-1.2.1/lib/
+2.19
+file:///home/guilherme/.pub-cache/hosted/pub.dev/http-0.13.6/
+file:///home/guilherme/.pub-cache/hosted/pub.dev/http-0.13.6/lib/
 http_parser
 2.12
 file:///home/guilherme/.pub-cache/hosted/pub.dev/http_parser-4.0.2/
@@ -66,10 +66,6 @@ path
 3.0
 file:///home/guilherme/.pub-cache/hosted/pub.dev/path-1.9.0/
 file:///home/guilherme/.pub-cache/hosted/pub.dev/path-1.9.0/lib/
-plugin_platform_interface
-3.0
-file:///home/guilherme/.pub-cache/hosted/pub.dev/plugin_platform_interface-2.1.8/
-file:///home/guilherme/.pub-cache/hosted/pub.dev/plugin_platform_interface-2.1.8/lib/
 source_span
 2.18
 file:///home/guilherme/.pub-cache/hosted/pub.dev/source_span-1.10.0/
@@ -106,10 +102,6 @@ vm_service
 3.0
 file:///home/guilherme/.pub-cache/hosted/pub.dev/vm_service-13.0.0/
 file:///home/guilherme/.pub-cache/hosted/pub.dev/vm_service-13.0.0/lib/
-web
-3.3
-file:///home/guilherme/.pub-cache/hosted/pub.dev/web-0.5.1/
-file:///home/guilherme/.pub-cache/hosted/pub.dev/web-0.5.1/lib/
 sky_engine
 3.2
 file:///home/guilherme/development/flutter/bin/cache/pkg/sky_engine/
