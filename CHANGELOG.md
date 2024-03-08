@@ -1,3 +1,6 @@
+## [3.1.3] - 8 Mar 2024
+- Downgrade http dependency to 1.2.0.
+
 ## [3.1.2] - 8 Mar 2024
 - Update http dependency.
 
