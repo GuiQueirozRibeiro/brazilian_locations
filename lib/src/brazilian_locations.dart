@@ -29,6 +29,9 @@ class BrazilianLocations extends StatefulWidget {
   /// Style for the selected item.
   final TextStyle? selectedItemStyle;
 
+  /// Padding for the dropdown.
+  final double? dropdownPadding;
+
   /// Style for the dropdown heading.
   final TextStyle? dropdownHeadingStyle;
 
@@ -94,6 +97,7 @@ class BrazilianLocations extends StatefulWidget {
   /// - [clearButtonDecoration]: Decoration for the clear button.
   /// - [title]: Widget to display as title.
   /// - [selectedItemStyle]: Style for the selected item.
+  /// - [dropdownPadding]: Padding for the dropdown.
   /// - [dropdownHeadingStyle]: Style for the dropdown heading.
   /// - [dropdownLabelStyle]: Style for the dropdown label.
   /// - [dropdownItemStyle]: Style for the dropdown items.
@@ -121,6 +125,7 @@ class BrazilianLocations extends StatefulWidget {
     this.clearButtonDecoration,
     this.title,
     this.selectedItemStyle,
+    this.dropdownPadding,
     this.dropdownHeadingStyle,
     this.dropdownLabelStyle,
     this.dropdownItemStyle,
@@ -230,7 +235,7 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
             ],
           ),
         if (widget.title != null || widget.showClearButton)
-          const SizedBox(height: 10.0),
+          SizedBox(height: widget.dropdownPadding ?? 16.0),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,7 +243,7 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
             if (widget.showDropdownLabel && widget.showStates)
               _buildStateDropdownLabel(),
             if (widget.showStates) _buildStateDropdown(),
-            const SizedBox(height: 10.0),
+            SizedBox(height: widget.dropdownPadding ?? 16.0),
             if (widget.showDropdownLabel && showCities)
               _buildCityDropdownLabel(),
             if (showCities) _buildCityDropdown(),
