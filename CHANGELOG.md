@@ -1,3 +1,6 @@
+## [3.1.5] - 18 Mar 2024
+- Add option to use a Custom Icon
+
 ## [3.1.4] - 18 Mar 2024
 - Add more style for the dropdown.
 

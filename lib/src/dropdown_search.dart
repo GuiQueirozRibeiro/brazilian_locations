@@ -9,11 +9,17 @@ class DropdownWithSearch<T> extends StatelessWidget {
   /// The title displayed above the dropdown.
   final String title;
 
+  /// The list of items to select from.
+  final List items;
+
   /// The currently selected item.
   final T selected;
 
-  /// The list of items to select from.
-  final List items;
+  /// Callback function called when the selection changes.
+  final Function onChanged;
+
+  /// Custom Icon to open the dialog.
+  final Icon? customIcon;
 
   /// Padding for the selected item.
   final EdgeInsets? selectedItemPadding;
@@ -48,9 +54,6 @@ class DropdownWithSearch<T> extends StatelessWidget {
   /// A label for the dropdown.
   final String label;
 
-  /// Callback function called when the selection changes.
-  final Function onChanged;
-
   /// Creates a [DropdownWithSearch] widget.
   ///
   /// Parameters:
@@ -59,6 +62,7 @@ class DropdownWithSearch<T> extends StatelessWidget {
   /// - [items]: The list of items to select from.
   /// - [selected]: The currently selected item.
   /// - [onChanged]: Callback function called when the selection changes.
+  /// - [customIcon]: Custom Icon to open the dialog.
   /// - [selectedItemPadding]: Padding for the selected item.
   /// - [selectedItemStyle]: Style for the selected item.
   /// - [dropdownHeadingStyle]: Style for the dropdown heading.
@@ -76,6 +80,7 @@ class DropdownWithSearch<T> extends StatelessWidget {
     required this.items,
     required this.selected,
     required this.onChanged,
+    this.customIcon,
     this.selectedItemPadding,
     this.selectedItemStyle,
     this.dropdownHeadingStyle,
@@ -133,7 +138,7 @@ class DropdownWithSearch<T> extends StatelessWidget {
                   style: selectedItemStyle ?? const TextStyle(fontSize: 16),
                 ),
               ),
-              const Icon(Icons.keyboard_arrow_down_rounded)
+              customIcon ?? const Icon(Icons.keyboard_arrow_down_rounded)
             ],
           ),
         ),

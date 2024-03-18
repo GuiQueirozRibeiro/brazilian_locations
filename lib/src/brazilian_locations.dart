@@ -26,6 +26,9 @@ class BrazilianLocations extends StatefulWidget {
   /// Widget to display as title.
   final Widget? title;
 
+  /// Custom Icon to open the dialog.
+  final Icon? customIcon;
+
   /// Style for the selected item.
   final TextStyle? selectedItemStyle;
 
@@ -96,6 +99,7 @@ class BrazilianLocations extends StatefulWidget {
   /// - [clearButtonContent]: Content to display on the clear button.
   /// - [clearButtonDecoration]: Decoration for the clear button.
   /// - [title]: Widget to display as title.
+  /// - [customIcon]: Custom Icon to open the dialog.
   /// - [selectedItemStyle]: Style for the selected item.
   /// - [dropdownPadding]: Padding for the dropdown.
   /// - [dropdownHeadingStyle]: Style for the dropdown heading.
@@ -124,6 +128,7 @@ class BrazilianLocations extends StatefulWidget {
     this.clearButtonContent = const Text('Limpar'),
     this.clearButtonDecoration,
     this.title,
+    this.customIcon,
     this.selectedItemStyle,
     this.dropdownPadding,
     this.dropdownHeadingStyle,
@@ -262,6 +267,7 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
       items: _states.map((String? dropDownStringItem) {
         return dropDownStringItem;
       }).toList(),
+      customIcon: widget.customIcon,
       selectedItemStyle: widget.selectedItemStyle,
       dropdownHeadingStyle: widget.dropdownHeadingStyle,
       itemStyle: widget.dropdownItemStyle,
@@ -290,6 +296,7 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
       label: widget.citySearchPlaceholder,
       disabled: cities.isEmpty ? true : false,
       items: cities,
+      customIcon: widget.customIcon,
       selectedItemStyle: widget.selectedItemStyle,
       dropdownHeadingStyle: widget.dropdownHeadingStyle,
       itemStyle: widget.dropdownItemStyle,
