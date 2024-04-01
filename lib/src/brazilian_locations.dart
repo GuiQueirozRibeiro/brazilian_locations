@@ -195,13 +195,14 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
 
       data.forEach((state, value) {
         String stateName = state;
+        String uf = value['uf'];
         List<dynamic> cities = value['cidades'];
         Set<String> cityNames = {};
 
         for (final city in cities) {
           cityNames.add(city['nome']);
         }
-        statesAndCities[stateName] = cityNames;
+        statesAndCities['$stateName - $uf'] = cityNames;
       });
     } else {
       final List<dynamic> data = jsonDecode(jsonContent);
