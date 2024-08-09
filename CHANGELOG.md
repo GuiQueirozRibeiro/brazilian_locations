@@ -1,3 +1,9 @@
+## [3.3.0] - 8 Aug 2024
+
+- Create a cache service with hive
+- update dependencies
+- create web support
+
 ## [3.2.0] - 1 Apr 2024
 
 - Enhanced location data by extracting UF for Brazilian states.

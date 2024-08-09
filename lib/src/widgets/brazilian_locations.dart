@@ -1,10 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 
-import 'dropdown_search.dart';
+import 'package:brazilian_locations/src/models/location.dart';
+import 'package:brazilian_locations/src/services/cache_service.dart';
+import 'package:brazilian_locations/src/widgets/dropdown_search.dart';
 
 /// A widget for selecting Brazilian locations.
 class BrazilianLocations extends StatefulWidget {
@@ -62,9 +60,6 @@ class BrazilianLocations extends StatefulWidget {
   /// Whether to show dropdown Label.
   final bool showDropdownLabel;
 
-  /// Use local data or use JSON from IBGE API.
-  final bool useLocalData;
-
   /// Radius for the search bar.
   final double? searchBarRadius;
 
@@ -111,7 +106,6 @@ class BrazilianLocations extends StatefulWidget {
   /// - [showStates]: Whether to show states dropdown.
   /// - [showCities]: Whether to show cities dropdown.
   /// - [showDropdownLabel]: Whether to show dropdown Label.
-  /// - [useLocalData]: Use local data or use JSON from IBGE API.
   /// - [searchBarRadius]: Radius for the search bar.
   /// - [dropdownDialogRadius]: Radius for the dropdown dialog.
   /// - [stateSearchPlaceholder]: Placeholder text for state search.
@@ -140,7 +134,6 @@ class BrazilianLocations extends StatefulWidget {
     this.showStates = true,
     this.showCities = true,
     this.showDropdownLabel = true,
-    this.useLocalData = true,
     this.searchBarRadius,
     this.dropdownDialogRadius,
     this.stateSearchPlaceholder = 'Procurar Estado',
@@ -151,78 +144,49 @@ class BrazilianLocations extends StatefulWidget {
     this.currentCity = 'Cidade',
   });
 
+  /// Static method to initialize Hive and fetch data.
+  static Future<void> initialize() async {
+    final cacheService = CacheService();
+    await cacheService.initializeHive();
+    await cacheService.fetchAndCacheData();
+  }
+
   @override
   State<BrazilianLocations> createState() => _BrazilianLocationsState();
 }
 
 class _BrazilianLocationsState extends State<BrazilianLocations> {
-  String _selectedState = '';
-  String _selectedCity = '';
-  List<String> _states = [];
-  Map<String, Set<String>> _citiesMap = {};
+  String selectedState = '';
+  String selectedCity = '';
+  List<String> states = [];
+  Map<String, Set<String>> citiesMap = {};
+
+  late final CacheService _cacheService;
 
   @override
   void initState() {
     super.initState();
-    _initValues();
-    _loadStatesAndCities();
+    _cacheService = CacheService();
+    loadData();
   }
 
-  void _initValues() {
-    _selectedState = widget.currentState;
-    _selectedCity = widget.currentCity;
-  }
+  Future<void> loadData() async {
+    final List<Location> locations = await _cacheService.getData();
+    final Map<String, Set<String>> tempCitiesMap = {};
 
-  /// Read JSON Brazil data from assets or IBGE Api
-  Future<String> loadJson() async {
-    if (widget.useLocalData) {
-      return await rootBundle
-          .loadString('packages/brazilian_locations/lib/assets/brasil.json');
-    } else {
-      final response = await http.get(
-        Uri.https('servicodados.ibge.gov.br', '/api/v1/localidades/distritos'),
-      );
-      return response.body;
-    }
-  }
-
-  Future<void> _loadStatesAndCities() async {
-    final String jsonContent = await loadJson();
-    Map<String, Set<String>> statesAndCities = {};
-
-    if (widget.useLocalData) {
-      final Map<String, dynamic> data = jsonDecode(jsonContent);
-
-      data.forEach((state, value) {
-        String stateName = state;
-        String uf = value['uf'];
-        List<dynamic> cities = value['cidades'];
-        Set<String> cityNames = {};
-
-        for (final city in cities) {
-          cityNames.add(city['nome']);
-        }
-        statesAndCities['$stateName - $uf'] = cityNames;
-      });
-    } else {
-      final List<dynamic> data = jsonDecode(jsonContent);
-
-      for (final item in data) {
-        String state =
-            item['municipio']['microrregiao']['mesorregiao']['UF']['nome'];
-        String city = item['municipio']['nome'];
-
-        if (statesAndCities.containsKey(state)) {
-          statesAndCities[state]!.add(city);
-        } else {
-          statesAndCities[state] = {city};
-        }
+    for (final location in locations) {
+      if (tempCitiesMap.containsKey(location.state)) {
+        tempCitiesMap[location.state]!.add(location.city);
+      } else {
+        tempCitiesMap[location.state] = {location.city};
       }
     }
 
     setState(() {
-      _states = statesAndCities.keys.toList();
-      _citiesMap = statesAndCities;
+      states = tempCitiesMap.keys.toList();
+      citiesMap = tempCitiesMap;
+      selectedState = widget.currentState;
+      selectedCity = widget.currentCity;
     });
   }
 
@@ -237,7 +201,7 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
             children: [
               if (widget.title != null) Expanded(flex: 2, child: widget.title!),
               if (widget.showClearButton)
-                Expanded(flex: 1, child: _buildClearButton()),
+                Expanded(flex: 1, child: buildClearButton()),
             ],
           ),
         if (widget.title != null || widget.showClearButton)
@@ -247,12 +211,12 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             if (widget.showDropdownLabel && widget.showStates)
-              _buildStateDropdownLabel(),
-            if (widget.showStates) _buildStateDropdown(),
+              buildStateDropdownLabel(),
+            if (widget.showStates) buildStateDropdown(),
             SizedBox(height: widget.dropdownPadding ?? 16.0),
             if (widget.showDropdownLabel && showCities)
-              _buildCityDropdownLabel(),
-            if (showCities) _buildCityDropdown(),
+              buildCityDropdownLabel(),
+            if (showCities) buildCityDropdown(),
           ],
         )
       ],
@@ -260,12 +224,12 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
   }
 
   /// Build Dropdown Widget for State
-  Widget _buildStateDropdown() {
+  Widget buildStateDropdown() {
     return DropdownWithSearch(
       label: widget.stateSearchPlaceholder,
       title: widget.stateDropdownLabel,
-      disabled: _states.isEmpty ? true : false,
-      items: _states.map((String? dropDownStringItem) {
+      disabled: states.isEmpty ? true : false,
+      items: states.map((String? dropDownStringItem) {
         return dropDownStringItem;
       }).toList(),
       customIcon: widget.customIcon,
@@ -277,19 +241,19 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
       dialogRadius: widget.dropdownDialogRadius,
       searchBarRadius: widget.searchBarRadius,
       disabledDropdownDecoration: widget.disabledDropdownDecoration,
-      selected: _selectedState,
+      selected: selectedState,
       onChanged: (String? newState) {
         if (newState != null && widget.onStateChanged != null) {
           widget.onStateChanged!(newState);
-          setState(() => _selectedState = newState);
+          setState(() => selectedState = newState);
         }
       },
     );
   }
 
   /// Build Dropdown Widget for City
-  Widget _buildCityDropdown() {
-    List<String>? cities = _citiesMap[_selectedState]?.toList();
+  Widget buildCityDropdown() {
+    List<String>? cities = citiesMap[selectedState]?.toList();
     cities ??= [];
 
     return DropdownWithSearch(
@@ -306,18 +270,18 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
       dialogRadius: widget.dropdownDialogRadius,
       searchBarRadius: widget.searchBarRadius,
       disabledDropdownDecoration: widget.disabledDropdownDecoration,
-      selected: _selectedCity,
+      selected: selectedCity,
       onChanged: (String? newCity) {
         if (newCity != null && widget.onCityChanged != null) {
           widget.onCityChanged!(newCity);
-          setState(() => _selectedCity = newCity);
+          setState(() => selectedCity = newCity);
         }
       },
     );
   }
 
   /// Show the State Dropdown Label
-  Widget _buildStateDropdownLabel() {
+  Widget buildStateDropdownLabel() {
     return Text(
       widget.stateDropdownLabel,
       style: widget.dropdownLabelStyle ?? const TextStyle(fontSize: 18),
@@ -325,7 +289,7 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
   }
 
   /// Show the City Dropdown Label
-  Widget _buildCityDropdownLabel() {
+  Widget buildCityDropdownLabel() {
     return Text(
       widget.cityDropdownLabel,
       style: widget.dropdownLabelStyle ?? const TextStyle(fontSize: 18),
@@ -333,15 +297,15 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
   }
 
   /// Clear State and City Values
-  Widget _buildClearButton() {
+  Widget buildClearButton() {
     return ElevatedButton(
       style: widget.clearButtonDecoration,
       onPressed: () {
         if (widget.onStateChanged != null) widget.onStateChanged!(null);
         if (widget.onCityChanged != null) widget.onCityChanged!(null);
         setState(() {
-          _selectedState = widget.stateDropdownLabel;
-          _selectedCity = widget.cityDropdownLabel;
+          selectedState = widget.stateDropdownLabel;
+          selectedCity = widget.cityDropdownLabel;
         });
       },
       child: widget.clearButtonContent,

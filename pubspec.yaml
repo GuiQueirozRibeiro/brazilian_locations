@@ -1,26 +1,26 @@
 name: brazilian_locations
 description: "Flutter package to display list of States and Cities from Brazil."
-version: 3.2.0
+version: 3.3.0
 homepage: https://github.com/GuiQueirozRibeiro/brazilian_locations
 
 environment:
-  sdk: ">=3.3.0 <4.0.0"
-  flutter: ">=3.3.0"
+  sdk: ">=3.4.3 <4.0.0"
+  flutter: ">=3.4.3"
 
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.2.0
+  hive: ^2.2.3
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.12
+  hive_generator: ^2.0.1
 
 flutter:
-  assets:
-    - lib/assets/
-
   plugin:
     platforms:
       android:
@@ -35,5 +35,4 @@ flutter:
       windows:
         pluginClass: BrazilianLocationsPlugin
       web:
-        pluginClass: BrazilianLocationsWeb
-        fileName: brazilian_locations_web.dart
+        pluginClass: BrazilianLocationsPlugin

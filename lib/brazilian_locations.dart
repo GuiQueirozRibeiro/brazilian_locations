@@ -2,4 +2,4 @@
 
 library brazilian_locations;
 
-export 'src/brazilian_locations.dart';
+export 'src/widgets/brazilian_locations.dart';

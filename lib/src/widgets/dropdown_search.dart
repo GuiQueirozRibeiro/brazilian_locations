@@ -208,8 +208,17 @@ class _SearchDialogState<T> extends State<SearchDialog> {
   @override
   void initState() {
     super.initState();
-
     filteredList = widget.items;
+    createTextListener();
+  }
+
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
+
+  void createTextListener() {
     textController.addListener(() {
       setState(() {
         if (textController.text.isEmpty) {
@@ -227,18 +236,12 @@ class _SearchDialogState<T> extends State<SearchDialog> {
   }
 
   @override
-  void dispose() {
-    textController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return CustomDialog(
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(widget.dialogRadius ?? 14.0)),
+          borderRadius: BorderRadius.circular(widget.dialogRadius ?? 14)),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -246,12 +249,12 @@ class _SearchDialogState<T> extends State<SearchDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     widget.title,
                     style: widget.titleStyle ??
                         const TextStyle(
-                          fontSize: 16.0,
+                          fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
                   ),
@@ -265,9 +268,9 @@ class _SearchDialogState<T> extends State<SearchDialog> {
                 )
               ],
             ),
-            const SizedBox(height: 8.0),
+            const SizedBox(height: 8),
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16.0),
+              margin: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
                 autofocus: true,
                 decoration: widget.inputDecoration ??
@@ -279,7 +282,7 @@ class _SearchDialogState<T> extends State<SearchDialog> {
                         borderRadius: BorderRadius.all(
                             widget.searchInputRadius != null
                                 ? Radius.circular(widget.searchInputRadius!)
-                                : const Radius.circular(8.0)),
+                                : const Radius.circular(8)),
                         borderSide: const BorderSide(
                           color: Colors.black26,
                         ),
@@ -288,20 +291,20 @@ class _SearchDialogState<T> extends State<SearchDialog> {
                         borderRadius: BorderRadius.all(
                             widget.searchInputRadius != null
                                 ? Radius.circular(widget.searchInputRadius!)
-                                : const Radius.circular(8.0)),
+                                : const Radius.circular(8)),
                         borderSide: const BorderSide(color: Colors.black12),
                       ),
                     ),
-                style: widget.itemStyle ?? const TextStyle(fontSize: 16.0),
+                style: widget.itemStyle ?? const TextStyle(fontSize: 16),
                 controller: textController,
               ),
             ),
-            const SizedBox(height: 8.0),
+            const SizedBox(height: 8),
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.all(widget.dialogRadius != null
                     ? Radius.circular(widget.dialogRadius!)
-                    : const Radius.circular(8.0)),
+                    : const Radius.circular(8)),
                 child: ListView.builder(
                   itemCount: filteredList.length,
                   itemBuilder: (context, index) {
@@ -312,13 +315,13 @@ class _SearchDialogState<T> extends State<SearchDialog> {
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          vertical: 8.0,
-                          horizontal: 16.0,
+                          vertical: 8,
+                          horizontal: 16,
                         ),
                         child: Text(
                           filteredList[index].toString(),
-                          style: widget.itemStyle ??
-                              const TextStyle(fontSize: 16.0),
+                          style:
+                              widget.itemStyle ?? const TextStyle(fontSize: 16),
                         ),
                       ),
                     );
@@ -350,7 +353,7 @@ class CustomDialog extends StatelessWidget {
   ///
   /// Defines the dialog's [Material.shape].
   ///
-  /// The default shape is a [RoundedRectangleBorder] with a radius of 2.0.
+  /// The default shape is a [RoundedRectangleBorder] with a radius of 2.
   final ShapeBorder? shape;
 
   /// Creates a [CustomDialog] widget.
@@ -369,20 +372,20 @@ class CustomDialog extends StatelessWidget {
     this.shape,
   });
 
-  Color _getColor(BuildContext context) {
-    return Theme.of(context).dialogBackgroundColor;
-  }
-
-  static const RoundedRectangleBorder _defaultDialogShape =
-      RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(4.0)));
+  static const defaultDialogShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(4)),
+  );
 
   static const constraints = BoxConstraints(
-    minWidth: 280.0,
-    minHeight: 280.0,
-    maxHeight: 400.0,
-    maxWidth: 400.0,
+    minWidth: 280,
+    minHeight: 280,
+    maxHeight: 400,
+    maxWidth: 400,
   );
+
+  Color getColor(BuildContext context) {
+    return Theme.of(context).dialogBackgroundColor;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -390,7 +393,7 @@ class CustomDialog extends StatelessWidget {
 
     return AnimatedPadding(
       padding: MediaQuery.of(context).viewInsets +
-          const EdgeInsets.symmetric(horizontal: 22.0, vertical: 24.0),
+          const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
       duration: insetAnimationDuration,
       curve: insetAnimationCurve,
       child: MediaQuery.removeViewInsets(
@@ -403,10 +406,10 @@ class CustomDialog extends StatelessWidget {
           child: ConstrainedBox(
             constraints: constraints,
             child: Material(
-              elevation: 15.0,
-              color: _getColor(context),
+              elevation: 15,
+              color: getColor(context),
               type: MaterialType.card,
-              shape: shape ?? dialogTheme.shape ?? _defaultDialogShape,
+              shape: shape ?? dialogTheme.shape ?? defaultDialogShape,
               child: child,
             ),
           ),
