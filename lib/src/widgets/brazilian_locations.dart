@@ -144,11 +144,16 @@ class BrazilianLocations extends StatefulWidget {
     this.currentCity = 'Cidade',
   });
 
+  static final CacheService _cacheService = CacheService();
+  static bool _isInitialized = false;
+
   /// Static method to initialize Hive and fetch data.
   static Future<void> initialize() async {
-    final cacheService = CacheService();
-    await cacheService.initializeHive();
-    await cacheService.fetchAndCacheData();
+    if (!_isInitialized) {
+      await _cacheService.initializeHive();
+      await _cacheService.loadData();
+      _isInitialized = true;
+    }
   }
 
   @override
@@ -161,17 +166,19 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
   List<String> states = [];
   Map<String, Set<String>> citiesMap = {};
 
-  late final CacheService _cacheService;
+  final CacheService _cacheService = BrazilianLocations._cacheService;
 
   @override
   void initState() {
     super.initState();
-    _cacheService = CacheService();
-    loadData();
+    _loadData();
   }
 
-  Future<void> loadData() async {
-    final List<Location> locations = await _cacheService.getData();
+  Future<void> _loadData() async {
+    if (!BrazilianLocations._isInitialized) {
+      await BrazilianLocations.initialize();
+    }
+    final List<Location> locations = _cacheService.getCachedData();
     final Map<String, Set<String>> tempCitiesMap = {};
 
     for (final location in locations) {

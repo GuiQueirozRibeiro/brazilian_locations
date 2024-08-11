@@ -48,7 +48,27 @@ To use this Package, add `brazilian_locations` as a [dependency in your pubspec.
     },
   );
 ```
+
 you will get feedback in onChanged functions
+
+## Cache Service
+
+The package now includes a cache service that stores the data retrieved from the IBGE API using Hive, allowing faster loading times for subsequent app launches.
+
+- **Optional Initialization:**: You can choose to initialize the cache service before running your app to ensure data is preloaded and dropdowns are ready for user interaction immediately.
+
+Example:
+
+```dart
+void main() async {
+  /// Optionally initialize BrazilianLocations
+  /// - Initializes Hive and loads cached data.
+  /// - Ensures dropdowns are populated and responsive upon first app load.
+  await BrazilianLocations.initialize();
+
+  runApp(const MyApp());
+}
+```
 
 ### Parameters
 

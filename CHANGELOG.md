@@ -1,3 +1,8 @@
+## [3.3.1] - 8 Aug 2024
+
+- Fixing some bugs
+- Add Cache timestamp: The cache now includes a timestamp to check the data's age. If the data is older than one day, the app automatically fetches fresh data from the IBGE API and updates the cache.
+
 ## [3.3.0] - 8 Aug 2024
 
 - Create a cache service with hive

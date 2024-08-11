@@ -1,47 +1,89 @@
 import 'dart:convert';
 
+import 'package:brazilian_locations/src/models/cache_data.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 import 'package:brazilian_locations/src/models/location.dart';
 
 class CacheService {
-  static const String _boxName = 'brazilian_locations';
+  CacheService();
+
+  static const String _boxName = 'brazilian_locations_box';
+  static const Duration _cacheDuration = Duration(days: 1);
+
+  List<Location>? _cachedData;
+
+  List<Location> getCachedData() {
+    if (_cachedData == null) {
+      throw Exception('Data not loaded. Please call loadData() first.');
+    }
+    return _cachedData!;
+  }
 
   Future<void> initializeHive() async {
-    if (!Hive.isAdapterRegistered(0)) {
+    try {
+      final appDocumentDir = await getApplicationDocumentsDirectory();
+      Hive.init(appDocumentDir.path);
       Hive.registerAdapter(LocationAdapter());
+      Hive.registerAdapter(CacheDataAdapter());
+      await Hive.openBox<CacheData>(_boxName);
+    } catch (e) {
+      debugPrint('Error initializing Hive: $e');
+      rethrow;
     }
-    await Hive.openBox<Location>(_boxName);
   }
 
   Future<void> saveData(List<Location> data) async {
-    var box = Hive.box<Location>(_boxName);
-    await box.clear();
-    await box.addAll(data);
+    try {
+      var box = Hive.box<CacheData>(_boxName);
+      CacheData cacheData = CacheData(data, DateTime.now());
+      await box.clear();
+      await box.put('cache', cacheData);
+    } catch (e) {
+      debugPrint('Error saving data: $e');
+      rethrow;
+    }
   }
 
-  Future<List<Location>> getData() async {
-    var box = Hive.box<Location>(_boxName);
-    return box.values.toList();
+  Future<void> loadData() async {
+    try {
+      var box = Hive.box<CacheData>(_boxName);
+      CacheData? cacheData = box.get('cache');
+
+      if (cacheData != null &&
+          DateTime.now().difference(cacheData.timestamp) <= _cacheDuration) {
+        _cachedData = cacheData.locations;
+      } else {
+        _cachedData = await fetchAndCacheData();
+      }
+    } catch (e) {
+      debugPrint('Error getting data: $e');
+      rethrow;
+    }
   }
 
-  Future<void> fetchAndCacheData() async {
-    var box = Hive.box<Location>(_boxName);
-    if (box.isNotEmpty) return;
+  Future<List<Location>> fetchAndCacheData() async {
+    try {
+      final response = await http.get(
+        Uri.https('servicodados.ibge.gov.br', '/api/v1/localidades/distritos'),
+      );
 
-    final response = await http.get(
-      Uri.https('servicodados.ibge.gov.br', '/api/v1/localidades/distritos'),
-    );
+      final List<dynamic> data = jsonDecode(response.body);
+      final List<Location> locations = data.map((item) {
+        String state =
+            item['municipio']['microrregiao']['mesorregiao']['UF']['nome'];
+        String city = item['municipio']['nome'];
+        return Location(state, city);
+      }).toList();
 
-    final List<dynamic> data = jsonDecode(response.body);
-    final List<Location> locations = data.map((item) {
-      String state =
-          item['municipio']['microrregiao']['mesorregiao']['UF']['nome'];
-      String city = item['municipio']['nome'];
-      return Location(state, city);
-    }).toList();
-
-    await saveData(locations);
+      await saveData(locations);
+      return locations;
+    } catch (e) {
+      debugPrint('Error fetching and saving API data: $e');
+      rethrow;
+    }
   }
 }

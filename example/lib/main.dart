@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:brazilian_locations/brazilian_locations.dart';
 
-void main() {
+void main() async {
+  // Ensure that widget binding is initialized before any asynchronous operations.
+  WidgetsFlutterBinding.ensureInitialized();
+
+  /// Optionally initialize BrazilianLocations
+  /// - This step sets up Hive and loads cached data.
+  /// - By initializing here, you avoid displaying empty or unresponsive
+  ///   dropdowns on the first load, especially if API data needs to be fetched.
+  /// - [OPTIONAL]: If you prefer to handle data loading differently, you can skip
+  ///   this initialization, but it may result in a slight delay in populating
+  ///   the dropdowns when the widget first appears.
+  await BrazilianLocations.initialize();
+
   runApp(const MyApp());
 }
 
