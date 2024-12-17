@@ -1,3 +1,9 @@
+## [3.3.2] - 16 Dez 2024
+
+- Adding UF to states
+- Update dependencies
+- Fixing some bugs
+
 ## [3.3.1] - 8 Aug 2024
 
 - Fixing some bugs
@@ -6,8 +12,8 @@
 ## [3.3.0] - 8 Aug 2024
 
 - Create a cache service with hive
-- update dependencies
-- create web support
+- Update dependencies
+- Create web support
 
 ## [3.2.0] - 1 Apr 2024
 

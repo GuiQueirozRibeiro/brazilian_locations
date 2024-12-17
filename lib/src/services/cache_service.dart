@@ -12,7 +12,7 @@ class CacheService {
   CacheService();
 
   static const String _boxName = 'brazilian_locations_box';
-  static const Duration _cacheDuration = Duration(days: 1);
+  static const Duration _cacheDuration = Duration(days: 0);
 
   List<Location>? _cachedData;
 
@@ -73,12 +73,14 @@ class CacheService {
 
       final List<dynamic> data = jsonDecode(response.body);
       final List<Location> locations = data.map((item) {
-        String state =
+        final String stateName =
             item['municipio']['microrregiao']['mesorregiao']['UF']['nome'];
-        String city = item['municipio']['nome'];
-        return Location(state, city);
+        final String stateUF =
+            item['municipio']['microrregiao']['mesorregiao']['UF']['sigla'];
+        final String city = item['municipio']['nome'];
+        return Location('$stateName - $stateUF', city);
       }).toList();
-
+      locations.sort((a, b) => a.state.compareTo(b.state));
       await saveData(locations);
       return locations;
     } catch (e) {
