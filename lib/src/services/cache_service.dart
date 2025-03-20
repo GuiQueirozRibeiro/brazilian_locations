@@ -72,14 +72,13 @@ class CacheService {
       );
 
       final List<dynamic> data = jsonDecode(response.body);
-      final List<Location> locations = data.map((item) {
-        final String stateName =
-            item['municipio']['microrregiao']['mesorregiao']['UF']['nome'];
-        final String stateUF =
-            item['municipio']['microrregiao']['mesorregiao']['UF']['sigla'];
-        final String city = item['municipio']['nome'];
-        return Location('$stateName - $stateUF', city);
-      }).toList();
+      final List<Location> locations =
+          data.map((item) {
+            final String stateUF =
+                item['municipio']['microrregiao']['mesorregiao']['UF']['sigla'];
+            final String city = item['municipio']['nome'];
+            return Location(stateUF, city);
+          }).toList();
       locations.sort((a, b) => a.state.compareTo(b.state));
       await saveData(locations);
       return locations;

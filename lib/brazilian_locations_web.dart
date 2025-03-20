@@ -1,10 +1,13 @@
 import 'dart:async';
-import 'dart:html' as html show window;
+import 'dart:js_interop';
 
-/// Todo implementation of BrazilianLocations Web
+@JS('navigator.userAgent')
+external String get userAgent;
+
 class BrazilianLocations {
   static Future<String?> getPlatformVersion() async {
-    final version = html.window.navigator.userAgent;
+    // Acessa a versão do navegador (userAgent) via JS interop
+    final version = userAgent;
     return version;
   }
 }

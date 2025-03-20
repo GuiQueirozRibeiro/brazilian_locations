@@ -1,3 +1,9 @@
+## [3.4.0] - 20 Mar 2024
+
+- Using only UF for the states
+- Update dependencies
+- Fixing some bugs
+
 ## [3.3.2] - 16 Dez 2024
 
 - Adding UF to states

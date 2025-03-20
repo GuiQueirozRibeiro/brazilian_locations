@@ -119,15 +119,25 @@ class DropdownWithSearch<T> extends StatelessWidget {
           decoration: !disabled
               ? decoration ??
                   BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(4)),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(4),
+                    ),
                     color: Colors.white,
-                    border: Border.all(color: Colors.grey.shade300, width: 1),
+                    border: Border.all(
+                      color: Colors.grey.shade300,
+                      width: 1,
+                    ),
                   )
               : disabledDropdownDecoration ??
                   BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(4)),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(4),
+                    ),
                     color: Colors.grey.shade300,
-                    border: Border.all(color: Colors.grey.shade300, width: 1),
+                    border: Border.all(
+                      color: Colors.grey.shade300,
+                      width: 1,
+                    ),
                   ),
           child: Row(
             children: [
@@ -138,7 +148,7 @@ class DropdownWithSearch<T> extends StatelessWidget {
                   style: selectedItemStyle ?? const TextStyle(fontSize: 16),
                 ),
               ),
-              customIcon ?? const Icon(Icons.keyboard_arrow_down_rounded)
+              customIcon ?? const Icon(Icons.keyboard_arrow_down_rounded),
             ],
           ),
         ),
@@ -225,10 +235,11 @@ class _SearchDialogState<T> extends State<SearchDialog> {
           filteredList = widget.items;
         } else {
           filteredList = widget.items
-              .where((element) => element
-                  .toString()
-                  .toLowerCase()
-                  .contains(textController.text.toLowerCase()))
+              .where(
+                (element) => element.toString().toLowerCase().contains(
+                      textController.text.toLowerCase(),
+                    ),
+              )
               .toList();
         }
       });
@@ -239,7 +250,8 @@ class _SearchDialogState<T> extends State<SearchDialog> {
   Widget build(BuildContext context) {
     return CustomDialog(
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(widget.dialogRadius ?? 14)),
+        borderRadius: BorderRadius.circular(widget.dialogRadius ?? 14),
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Column(
@@ -265,7 +277,7 @@ class _SearchDialogState<T> extends State<SearchDialog> {
                     FocusScope.of(context).unfocus();
                     Navigator.pop(context);
                   },
-                )
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -280,18 +292,18 @@ class _SearchDialogState<T> extends State<SearchDialog> {
                       hintText: widget.label,
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(
-                            widget.searchInputRadius != null
-                                ? Radius.circular(widget.searchInputRadius!)
-                                : const Radius.circular(8)),
-                        borderSide: const BorderSide(
-                          color: Colors.black26,
+                          widget.searchInputRadius != null
+                              ? Radius.circular(widget.searchInputRadius!)
+                              : const Radius.circular(8),
                         ),
+                        borderSide: const BorderSide(color: Colors.black26),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(
-                            widget.searchInputRadius != null
-                                ? Radius.circular(widget.searchInputRadius!)
-                                : const Radius.circular(8)),
+                          widget.searchInputRadius != null
+                              ? Radius.circular(widget.searchInputRadius!)
+                              : const Radius.circular(8),
+                        ),
                         borderSide: const BorderSide(color: Colors.black12),
                       ),
                     ),
@@ -302,9 +314,11 @@ class _SearchDialogState<T> extends State<SearchDialog> {
             const SizedBox(height: 8),
             Expanded(
               child: ClipRRect(
-                borderRadius: BorderRadius.all(widget.dialogRadius != null
-                    ? Radius.circular(widget.dialogRadius!)
-                    : const Radius.circular(8)),
+                borderRadius: BorderRadius.all(
+                  widget.dialogRadius != null
+                      ? Radius.circular(widget.dialogRadius!)
+                      : const Radius.circular(8),
+                ),
                 child: ListView.builder(
                   itemCount: filteredList.length,
                   itemBuilder: (context, index) {
@@ -383,13 +397,9 @@ class CustomDialog extends StatelessWidget {
     maxWidth: 400,
   );
 
-  Color getColor(BuildContext context) {
-    return Theme.of(context).dialogBackgroundColor;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final DialogTheme dialogTheme = DialogTheme.of(context) as DialogTheme;
+    final DialogThemeData dialogTheme = DialogTheme.of(context);
 
     return AnimatedPadding(
       padding: MediaQuery.of(context).viewInsets +
@@ -407,7 +417,7 @@ class CustomDialog extends StatelessWidget {
             constraints: constraints,
             child: Material(
               elevation: 15,
-              color: getColor(context),
+              color: DialogTheme.of(context).backgroundColor,
               type: MaterialType.card,
               shape: shape ?? dialogTheme.shape ?? defaultDialogShape,
               child: child,
