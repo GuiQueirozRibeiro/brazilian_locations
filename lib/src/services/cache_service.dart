@@ -12,24 +12,37 @@ class CacheService {
   CacheService();
 
   static const String _boxName = 'brazilian_locations_box';
-  static const Duration _cacheDuration = Duration(days: 0);
+  static const Duration _cacheDuration = Duration(days: 7);
 
   List<Location>? _cachedData;
+  bool _isHiveInitialized = false;
 
   List<Location> getCachedData() {
     if (_cachedData == null) {
-      throw Exception('Data not loaded. Please call loadData() first.');
+      return [];
     }
     return _cachedData!;
   }
 
   Future<void> initializeHive() async {
+    if (_isHiveInitialized) return;
+
     try {
       final appDocumentDir = await getApplicationDocumentsDirectory();
       Hive.init(appDocumentDir.path);
-      Hive.registerAdapter(LocationAdapter());
-      Hive.registerAdapter(CacheDataAdapter());
-      await Hive.openBox<CacheData>(_boxName);
+
+      if (!Hive.isAdapterRegistered(LocationAdapter().typeId)) {
+        Hive.registerAdapter(LocationAdapter());
+      }
+      if (!Hive.isAdapterRegistered(CacheDataAdapter().typeId)) {
+        Hive.registerAdapter(CacheDataAdapter());
+      }
+
+      if (!Hive.isBoxOpen(_boxName)) {
+        await Hive.openBox<CacheData>(_boxName);
+      }
+
+      _isHiveInitialized = true;
     } catch (e) {
       debugPrint('Error initializing Hive: $e');
       rethrow;
@@ -60,30 +73,74 @@ class CacheService {
         _cachedData = await fetchAndCacheData();
       }
     } catch (e) {
-      debugPrint('Error getting data: $e');
-      rethrow;
+      debugPrint('Error loading data: $e');
+      try {
+        var box = Hive.box<CacheData>(_boxName);
+        CacheData? cacheData = box.get('cache');
+        if (cacheData != null) {
+          _cachedData = cacheData.locations;
+        } else {
+          _cachedData = [];
+        }
+      } catch (fallbackError) {
+        debugPrint('Fallback also failed: $fallbackError');
+        _cachedData = [];
+      }
     }
   }
 
   Future<List<Location>> fetchAndCacheData() async {
     try {
-      final response = await http.get(
-        Uri.https('servicodados.ibge.gov.br', '/api/v1/localidades/distritos'),
-      );
+      final response = await http
+          .get(
+            Uri.https(
+                'servicodados.ibge.gov.br', '/api/v1/localidades/distritos'),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      if (response.statusCode != 200) {
+        throw Exception('API returned status code: ${response.statusCode}');
+      }
 
       final List<dynamic> data = jsonDecode(response.body);
-      final List<Location> locations =
-          data.map((item) {
-            final String stateUF =
-                item['municipio']['microrregiao']['mesorregiao']['UF']['sigla'];
-            final String city = item['municipio']['nome'];
-            return Location(stateUF, city);
-          }).toList();
+      final List<Location> locations = [];
+
+      for (final item in data) {
+        try {
+          // Safe navigation through nested structure
+          final municipio = item['municipio'];
+          if (municipio == null) continue;
+
+          final microrregiao = municipio['microrregiao'];
+          if (microrregiao == null) continue;
+
+          final mesorregiao = microrregiao['mesorregiao'];
+          if (mesorregiao == null) continue;
+
+          final uf = mesorregiao['UF'];
+          if (uf == null) continue;
+
+          final stateUF = uf['sigla'];
+          final city = municipio['nome'];
+
+          if (stateUF != null && city != null) {
+            locations.add(Location(stateUF.toString(), city.toString()));
+          }
+        } catch (e) {
+          debugPrint('Error parsing item: $e');
+          continue;
+        }
+      }
+
+      if (locations.isEmpty) {
+        throw Exception('No valid locations found in API response');
+      }
+
       locations.sort((a, b) => a.state.compareTo(b.state));
       await saveData(locations);
       return locations;
     } catch (e) {
-      debugPrint('Error fetching and saving API data: $e');
+      debugPrint('Error fetching data from API: $e');
       rethrow;
     }
   }

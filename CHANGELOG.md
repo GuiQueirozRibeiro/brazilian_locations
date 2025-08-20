@@ -1,3 +1,11 @@
+## [3.4.1] - 20 Aug 2025
+
+- Fixed initialization freeze with timeout and concurrency control
+- Improved error handling to prevent crashes
+- Fixed API parsing for null values
+- Changed cache duration from 0 to 7 days
+- Added fallback mechanisms for failed data loading
+
 ## [3.4.0] - 20 Mar 2024
 
 - Using only UF for the states

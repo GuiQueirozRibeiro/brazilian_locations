@@ -146,13 +146,28 @@ class BrazilianLocations extends StatefulWidget {
 
   static final CacheService _cacheService = CacheService();
   static bool _isInitialized = false;
+  static bool _isInitializing = false;
 
   /// Static method to initialize Hive and fetch data.
   static Future<void> initialize() async {
-    if (!_isInitialized) {
+    if (_isInitializing || _isInitialized) return;
+
+    _isInitializing = true;
+
+    try {
       await _cacheService.initializeHive();
-      await _cacheService.loadData();
+      await _cacheService.loadData().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint('Data loading timeout - continuing with empty data');
+        },
+      );
       _isInitialized = true;
+    } catch (e) {
+      debugPrint('Error initializing BrazilianLocations: $e');
+      _isInitialized = true;
+    } finally {
+      _isInitializing = false;
     }
   }
 
@@ -175,26 +190,41 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
   }
 
   Future<void> _loadData() async {
-    if (!BrazilianLocations._isInitialized) {
-      await BrazilianLocations.initialize();
-    }
-    final List<Location> locations = _cacheService.getCachedData();
-    final Map<String, Set<String>> tempCitiesMap = {};
+    try {
+      if (!BrazilianLocations._isInitialized) {
+        await BrazilianLocations.initialize();
+      }
 
-    for (final location in locations) {
-      if (tempCitiesMap.containsKey(location.state)) {
-        tempCitiesMap[location.state]!.add(location.city);
-      } else {
-        tempCitiesMap[location.state] = {location.city};
+      final List<Location> locations = _cacheService.getCachedData();
+      final Map<String, Set<String>> tempCitiesMap = {};
+
+      for (final location in locations) {
+        if (tempCitiesMap.containsKey(location.state)) {
+          tempCitiesMap[location.state]!.add(location.city);
+        } else {
+          tempCitiesMap[location.state] = {location.city};
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          states = tempCitiesMap.keys.toList();
+          citiesMap = tempCitiesMap;
+          selectedState = widget.currentState;
+          selectedCity = widget.currentCity;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading data: $e');
+      if (mounted) {
+        setState(() {
+          states = [];
+          citiesMap = {};
+          selectedState = widget.currentState;
+          selectedCity = widget.currentCity;
+        });
       }
     }
-
-    setState(() {
-      states = tempCitiesMap.keys.toList();
-      citiesMap = tempCitiesMap;
-      selectedState = widget.currentState;
-      selectedCity = widget.currentCity;
-    });
   }
 
   @override
@@ -235,7 +265,7 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
     return DropdownWithSearch(
       label: widget.stateSearchPlaceholder,
       title: widget.stateDropdownLabel,
-      disabled: states.isEmpty ? true : false,
+      disabled: states.isEmpty,
       items: states.map((String? dropDownStringItem) {
         return dropDownStringItem;
       }).toList(),
@@ -252,7 +282,10 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
       onChanged: (String? newState) {
         if (newState != null && widget.onStateChanged != null) {
           widget.onStateChanged!(newState);
-          setState(() => selectedState = newState);
+          setState(() {
+            selectedState = newState;
+            selectedCity = widget.cityDropdownLabel;
+          });
         }
       },
     );
@@ -266,7 +299,7 @@ class _BrazilianLocationsState extends State<BrazilianLocations> {
     return DropdownWithSearch(
       title: widget.cityDropdownLabel,
       label: widget.citySearchPlaceholder,
-      disabled: cities.isEmpty ? true : false,
+      disabled: cities.isEmpty,
       items: cities,
       customIcon: widget.customIcon,
       selectedItemStyle: widget.selectedItemStyle,
