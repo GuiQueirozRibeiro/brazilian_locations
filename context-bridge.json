@@ -1,0 +1,72 @@
+{
+  "project": "brazilian_locations",
+  "type": "flutter_plugin_package",
+  "version": "3.4.1",
+  "published_at": "https://pub.dev/packages/brazilian_locations",
+  "repository": "https://github.com/GuiQueirozRibeiro/brazilian_locations",
+  "language": "Dart",
+  "framework": "Flutter",
+  "platforms": ["android", "ios", "macos", "linux", "windows", "web"],
+  "purpose": "Searchable state and city dropdowns for Brazil using the IBGE Districts API with Hive caching",
+  "last_known_version": "3.4.1",
+  "last_updated": "2025-08-20",
+
+  "architecture": {
+    "pattern": "Widget → Service → Cache/API",
+    "layers": {
+      "widgets": "lib/src/widgets/ — BrazilianLocations, DropdownWithSearch, SearchDialog",
+      "services": "lib/src/services/cache_service.dart — IBGE fetch + Hive persistence",
+      "models": "lib/src/models/ — Location (typeId:0), CacheData (typeId:1)"
+    },
+    "public_api": "lib/brazilian_locations.dart (single export)"
+  },
+
+  "dependencies": {
+    "hive": "^2.2.3",
+    "http": "^1.3.0",
+    "path_provider": "^2.1.5",
+    "build_runner": "^2.4.12",
+    "hive_generator": "^2.0.1"
+  },
+
+  "data_source": {
+    "api": "https://servicodados.ibge.gov.br/api/v1/localidades/distritos",
+    "cache_store": "Hive box 'brazilian_locations_box'",
+    "cache_ttl_days": 7,
+    "cache_key": "cache",
+    "fallback": "serve stale cache if API unreachable"
+  },
+
+  "key_files": {
+    "main_widget": "lib/src/widgets/brazilian_locations.dart",
+    "cache_service": "lib/src/services/cache_service.dart",
+    "location_model": "lib/src/models/location.dart",
+    "cache_model": "lib/src/models/cache_data.dart",
+    "example": "example/lib/main.dart"
+  },
+
+  "commands": {
+    "install": "flutter pub get",
+    "generate": "dart run build_runner build --delete-conflicting-outputs",
+    "analyze": "flutter analyze",
+    "test": "flutter test",
+    "publish": "flutter pub publish"
+  },
+
+  "conventions": {
+    "hive_type_ids": "Location=0, CacheData=1 — never reuse or change these",
+    "state_format": "2-letter UF code (SP, RJ, MG, ...)",
+    "city_format": "Full city name as returned by IBGE",
+    "generated_files": "*.g.dart are committed and must be regenerated after model changes"
+  },
+
+  "known_issues": [],
+
+  "ai_context_hints": [
+    "All platform channel implementations (kotlin/swift/cc/cpp) are stubs — do not add logic there",
+    "CacheService is stateless; Hive box holds all persistent state",
+    "The public API is intentionally a single widget with many optional styling params",
+    "Do not change Hive typeId values — they identify stored binary data and changing them breaks existing caches",
+    "The package targets pub.dev so avoid adding heavy dependencies that could conflict with consumer apps"
+  ]
+}
